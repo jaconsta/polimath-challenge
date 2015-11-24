@@ -2,12 +2,41 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>title</title>
+    <title>Challenge | Ebay categories</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+
+    <style type="text/css">
+    .container{
+      width: auto;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto
+    }
+    </style>
+
   </head>
   <body>
-    {% for categ in category %}
-      <p>{{categ}}</p>
-    {% endfor %}
+    <div class="container">
+      <div class="page-header">
+        <h1>Category details</h1>
+      </div>
+      <div> 
+        <dl class="dl-horizontal">
+            <dt>Category ID</dt><dd>{{category[1]}}</dd>
+          <dt>Name</dt><dd>{{category[2]}}</dd>
+          <dt>Level</dt><dd>{{category[3]}}</dd>
+          <dt>Best offer enabled</dt><dd>{% if category[4] == 1%} True {%else%} False{% endif %}</dd>
+        </dl>
+      </div>
+    </div>
   </body>
 </html>
 

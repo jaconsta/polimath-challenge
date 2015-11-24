@@ -6,12 +6,13 @@ Polimath challenge code.
 Extracting xml and generating categories.
   Specific details can be found in CHALLENGE.txt
 '''
+import os
 import re
 import subprocess
 import xml.etree.ElementTree as ET
 import sqlite3
 import argparse
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, PackageLoader, FileSystemLoader
 
 class CategoryNotFount(Exception):
     def __init__(self, value):
@@ -96,7 +97,7 @@ def findCategory(db, categoryId):
     cursor = db.cursor()
     category = (categoryId, )
     cursor.execute('SELECT * FROM categories WHERE categoryId=?', category)
-    print(cursor.fetchone())
+    return cursor.fetchone()
 
 def parseCategories(unparsedCateg):
     '''
@@ -124,17 +125,18 @@ def parseCategories(unparsedCateg):
 def saveCategoryHtml(categoryHtml, categoryId):
     '''
     '''
-    file = open(categoryId+'.html', 'W')
+    file = open('%s.html'%categoryId, 'w')
     file.write(categoryHtml)
     file.close()
 
-def createCategoryHtml(categoryList):
+def renderCategoryHtml(categoryList):
     '''
     '''
-    env = Environment(loader=PackageLoader('PolimathEbayCategories', 'templates'))
+    PATH = os.path.dirname(os.path.abspath(__file__))
+    env = Environment(loader=FileSystemLoader(os.path.join(PATH, 'templates')))
     template = env.get_template('categoryTemplate.html')
-    render = template.render(category=categoryList)
-    print (render)
+    render = template.render({'category':categoryList})
+    return render
 
 def createCategories():
     '''
@@ -160,7 +162,9 @@ def renderCategory(categoryId):
     print('Connecting to database.')
     db = connectDb()
     print('Finding Category %s.'% categoryId)
-    findCategory(db, categoryId)
+    category = findCategory(db, categoryId)
+    saveCategoryHtml(renderCategoryHtml(category), categoryId)
+    print('Html generated with name %s.html', categoryId)
 
 def main():
     '''
@@ -184,6 +188,7 @@ def main():
         print('Please select a valid argument.')
 
     print('Challenge finished!')
+    print('Bye bye')
 
 main()
 # print('Starting challenge.')
