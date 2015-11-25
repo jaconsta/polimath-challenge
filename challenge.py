@@ -14,6 +14,9 @@ import sqlite3
 import argparse
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 
+from modules.categoryXML import categoriesXml
+from modules.exceptions import CategoryNotFount
+
 class CategoryNotFount(Exception):
     def __init__(self, value):
         self.value = value
@@ -62,7 +65,7 @@ def getXmlCategories(xmlRoot):
 def connectDb(name='challenge'):
     '''
     '''
-    conn = sqlite3.connect('%s.db' % name)
+    conn = sqlite3.connect('%s.sqlite3' % name)
     return conn
 
 def disconnectDb(db):
@@ -141,16 +144,17 @@ def renderCategoryHtml(categoryList):
 def createCategories():
     '''
     '''
+    categ = categoriesXml()
     print('Getting categories.')
-    categories = getCategoriesXML()
-    categories = getXmlCategories(stringToXML(categories))
+    categories = categ.getCategoriesXML()
+    categories = categ.getXmlCategories(categ.stringToXML(categories))
 
     print('Connecting to database.')
     db = connectDb()
     createCategoriesTable(db)
 
     print('Parsing categories.')
-    parsedCategories = parseCategories(categories)
+    parsedCategories = categ.parseCategories(categories)
     # print('parsedCategories: ', parsedCategories)
     insertCategories(db, parsedCategories)
     print('Categories creation complete.')
@@ -191,19 +195,3 @@ def main():
     print('Bye bye')
 
 main()
-# print('Starting challenge.')
-# print('Getting categories.')
-# categories = getCategoriesXML()
-# categories = getXmlCategories(stringToXML(categories))
-#
-# print('Connecting to database.')
-# db = connectDb()
-# createCategoriesTable(db)
-#
-# print('Parsing categories.')
-# parsedCategories = parseCategories(categories)
-# print('parsedCategories: ', parsedCategories)
-# insertCategories(db, parsedCategories)
-# print('Categories creation complete.')
-# disconnectDb(db)
-# print('Bye bye.')

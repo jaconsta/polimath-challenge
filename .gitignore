@@ -60,6 +60,7 @@ target/
 
 # Sqlite files
 *.sqlite*
+*.db
 
 # Node modules
 node_modules/
