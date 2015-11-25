@@ -69,7 +69,7 @@ class categoriesXml():
           <LeafCategory>true</LeafCategory>
           <LSD>true</LSD>
         '''
-        categoryAttributes=('CategoryID', 'CategoryName', 'CategoryLevel', 'BestOfferEnabled',)
+        categoryAttributes=('CategoryID', 'CategoryName', 'CategoryLevel', 'BestOfferEnabled', 'CategoryParentID')
         categories=[]
         for categoryChild in unparsedCateg:
             attributes = {}
@@ -79,6 +79,7 @@ class categoriesXml():
             categories.append((attributes['CategoryID'],
                                 attributes['CategoryName'],
                                 attributes['CategoryLevel'],
+                                attributes['CategoryParentID'],
                                 1 if attributes['BestOfferEnabled'] == 'true' else 0, )) # Ensure correct order.
         self.categories = categories
         return categories
