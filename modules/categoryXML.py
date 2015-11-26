@@ -67,7 +67,6 @@ class categoriesXml():
     def getXmlXmlxs(self, xmlRoot):
         '''
         '''
-        # pattern = '(?P<xmlxs>{.*[}])?(?P<tagname>[\w]*)'
         result = re.match(self.pattern, xmlRoot.tag)
         self.xmlxs = result
         return result.group('xmlxs')
@@ -75,7 +74,6 @@ class categoriesXml():
     def getXmlTagname(self, xmlTag):
         '''
         '''
-        # pattern = '(?P<xmlxs>{.*[}])?(?P<tagname>[\w]*)'
         result = re.match(self.pattern, xmlTag)
         return result.group('tagname')
 
@@ -86,8 +84,6 @@ class categoriesXml():
         #print('Root tag: ' + xmlRoot.tag)
         # CategoryArray
         categories = list(xmlRoot.iter(xmlns + 'Category'))
-        # self.unparsedCategories = categories
-        # print ('Found %i categories' % len(self.unparsedCategories))
         print ('Found %i categories' % len(categories))
         return categories
     def parseCategories(self, unparsedCateg):
@@ -112,5 +108,4 @@ class categoriesXml():
                                 attributes['CategoryLevel'],
                                 attributes['CategoryParentID'],
                                 1 if 'BestOfferEnabled' in attributes else 0, )) # Ensure correct order.
-        # self.categories = categories
         return categories
