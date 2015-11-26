@@ -29,12 +29,29 @@
         <h1>Category details</h1>
       </div>
       <div> 
+        <div>
+          <h2>Requested category root.</h2>
+        </div>
         <dl class="dl-horizontal">
-            <dt>Category ID</dt><dd>{{category[1]}}</dd>
-          <dt>Name</dt><dd>{{category[2]}}</dd>
-          <dt>Level</dt><dd>{{category[3]}}</dd>
-          <dt>Best offer enabled</dt><dd>{% if category[4] == 1%} True {%else%} False{% endif %}</dd>
+            <dt>Category ID</dt><dd>{{category[0].categoryid}}</dd>
+          <dt>Name</dt><dd>{{category[0].name}}</dd>
+          <dt>Best offer enabled</dt><dd>{% if category[0].bestoffer == 1%} True {%else%} False{% endif %}</dd>
         </dl>
+      </div>
+      <div>
+        <div>
+          <h2>Category Children.</h2>
+        </div>
+        {% for children in category recursive%}
+        <ul class="list-inline {{loop.cycle('text-info','text-danger')}}">
+              <li><b>Id: </b>{{children.categoryid}}</li>
+              <li><b>Name: </b>{{children.name}}</li>
+              <li><b>Best Offer: </b>{% if children.bestoffer == 1%} True {%else%} False{% endif %}</li>
+              {%- if children.children %}
+              <li><b>Subcategories: </b><ul>{{ loop(children.children) }}</ul></li>
+              {%- endif %}
+          </ul>
+       {% endfor %}
       </div>
     </div>
   </body>

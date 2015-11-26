@@ -39,25 +39,38 @@ def processSubCategories(db, categ, parentCategories):
         categories = categ.getXmlCategories(categ.stringToXML(categories))
         if len(categories) > 1:
             parsedCategories = categ.parseCategories(categories)
+            db.insertCategories(parsedCategories)
             processSubCategories(db, categ, parsedCategories[1:]) # Process children
         return processSubCategories(db, categ, parentCategories[1:]) # Keep current node processing
     else:
         print('-------------')
         return
 
+def getCategoryChildren(db, parentCategory):
+    '''
+    '''
+    categories=[]
+    for category in parentCategory:
+        category['children'] = db.findChildren(category['categoryid'])
+        if len(category['children']) > 1:
+            category['children'] = getCategoryChildren(db, category['children'][1:])
+        categories.append(category)
+    return categories
+
+
 def createCategories():
     '''
     '''
+    print('Connecting to database.')
+    db = categoriesDb()
+    db.connectDb()
+    db.createCategoriesTable()
+
     categ = categoriesXml()
     print('Getting basic Level 1 categories.')
     categories = categ.requestCategories()
     #categories = categ.getCategoriesXML()
     categories = categ.getXmlCategories(categ.stringToXML(categories))
-
-    print('Connecting to database.')
-    db = categoriesDb()
-    db.connectDb()
-    db.createCategoriesTable()
 
     print('Parsing categories.')
     parsedCategories = categ.parseCategories(categories)
@@ -74,9 +87,14 @@ def renderCategory(categoryId):
     db = categoriesDb()
     db.connectDb()
     print('Finding Category %s.'% categoryId)
-    category = db.findCategory(categoryId)
+    category = db.findChildren(categoryId)#db.findCategory(categoryId)
+    #print (category)
+    #print('.-------------....')
+    #print('.-------------....')
+    category = getCategoryChildren(db, category[2:])
+    #print(category)
     saveCategoryHtml(renderCategoryHtml(category), categoryId)
-    print('Html generated with name %s.html', categoryId)
+    print('Html generated with name %s.html' % categoryId)
     db.disconnectDb()
 
 def main():
