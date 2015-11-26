@@ -7,107 +7,12 @@ Extracting xml and generating categories.
   Specific details can be found in CHALLENGE.txt
 '''
 import os
-import re
-import subprocess
-import xml.etree.ElementTree as ET
-import sqlite3
 import argparse
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 
 from modules.categoryXML import categoriesXml
 from modules.categoryDb import categoriesDb
 from modules.exceptions import CategoryNotFount
-
-#class CategoryNotFount(Exception):
-#    def __init__(self, value):
-#        self.value = value
-#    def __str__(self):
-#        return repr(self.value)
-
-#def getCategoriesXML():
-#    '''
-#    Uses the provided shell script file to get the categories from EBay.
-#    '''
-#    ebayCategories = subprocess.getoutput('sh ./get_categories.sh')
-#    # print(ebayCategories)
-#    return ebayCategories
-#
-#def stringToXML(unparsedXML):
-#    '''
-#    Converts a string xml to a valid xml object
-#    '''
-#    xmlRoot = ET.fromstring(unparsedXML)
-#    return xmlRoot
-#
-#def getXmlXmlxs(xmlRoot):
-#    '''
-#    '''
-#    pattern = '(?P<xmlxs>{.*[}])?(?P<tagname>[\w]*)'
-#    result = re.match(pattern, xmlRoot.tag)
-#    return result.group('xmlxs')
-#
-#def getXmlTagname(xmlTag):
-#    '''
-#    '''
-#    pattern = '(?P<xmlxs>{.*[}])?(?P<tagname>[\w]*)'
-#    result = re.match(pattern, xmlTag)
-#    return result.group('tagname')
-#
-#def getXmlCategories(xmlRoot):
-#    '''
-#    '''
-#    xmlns = '{urn:ebay:apis:eBLBaseComponents}'
-#    #print('Root tag: ' + xmlRoot.tag)
-#    # CategoryArray
-#    categories = list(xmlRoot.iter(xmlns + 'Category'))
-#    print ('Found %i categories' % len(categories))
-#    return categories
-#
-#def connectDb(name='challenge'):
-#    '''
-#    '''
-#    conn = sqlite3.connect('%s.sqlite3' % name)
-#    return conn
-#
-#def disconnectDb(db):
-#    '''
-#    '''
-#    db.close()
-#
-#def createCategoriesTable(db):
-#    '''
-#    '''
-#    cursor = db.cursor()
-#    # Force non existance
-#    cursor.execute('''DROP TABLE IF EXISTS categories''')
-#    db.commit()
-#    # And create the table
-#                    #id INTEGER PRIMARY KEY,
-#    cursor.execute('''CREATE TABLE categories (
-#                    categoryid INTEGER,
-#                    name TEXT,
-#                    level INTEGER,
-#                    parent INTEGER,
-#                    bestoffer INTEGER,
-#                    PRIMARY KEY(categoryid),
-#                    CONSTRAINT category_parent_fk FOREIGN KEY (parent) REFERENCES categories(categoryid))
-#                    ''')
-#    db.commit()
-#
-#def insertCategories(db, categories):
-#    '''
-#    '''
-#    # print (categories)
-#    cursor = db.cursor()
-#    cursor.executemany('''INSERT INTO categories (categoryid, name, level, parent, bestoffer) VALUES (?,?,?,?,?)''', categories)
-#    db.commit()
-#
-#def findCategory(db, categoryId):
-#    cursor = db.cursor()
-#    category = (categoryId, )
-#    cursor.execute('SELECT * FROM categories WHERE categoryId=?', category)
-#    return cursor.fetchone()
-
 
 def saveCategoryHtml(categoryHtml, categoryId):
     '''
@@ -125,12 +30,28 @@ def renderCategoryHtml(categoryList):
     render = template.render({'category':categoryList})
     return render
 
+def processSubCategories(db, categ, parentCategories):
+    '''
+    '''
+    if len(parentCategories) > 0:
+        print('Started processing: Level %s, %s subcategories.' % (parentCategories[0][2], parentCategories[0][1]))
+        categories = categ.requestCategories(levelFilter=int(parentCategories[0][2]), categoryFilter=parentCategories[0][0])
+        categories = categ.getXmlCategories(categ.stringToXML(categories))
+        if len(categories) > 1:
+            parsedCategories = categ.parseCategories(categories)
+            processSubCategories(db, categ, parsedCategories[1:]) # Process children
+        return processSubCategories(db, categ, parentCategories[1:]) # Keep current node processing
+    else:
+        print('-------------')
+        return
+
 def createCategories():
     '''
     '''
     categ = categoriesXml()
-    print('Getting categories.')
-    categories = categ.getCategoriesXML()
+    print('Getting basic Level 1 categories.')
+    categories = categ.requestCategories()
+    #categories = categ.getCategoriesXML()
     categories = categ.getXmlCategories(categ.stringToXML(categories))
 
     print('Connecting to database.')
@@ -142,6 +63,7 @@ def createCategories():
     parsedCategories = categ.parseCategories(categories)
     # print('parsedCategories: ', parsedCategories)
     db.insertCategories(parsedCategories)
+    processSubCategories(db, categ, parsedCategories)
     print('Categories creation complete.')
     db.disconnectDb()
 
