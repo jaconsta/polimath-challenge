@@ -18,7 +18,7 @@ from modules.exceptions import CategoryNotFount
 def saveCategoryHtml(categoryHtml, categoryId):
     """
     """
-    file = open('%s.html'%categoryId, 'w')
+    file = open('%s.html' % categoryId, 'w')
     file.write(categoryHtml)
     file.close()
 
@@ -92,7 +92,7 @@ def renderCategory(categoryId):
     db.connectDb()
     print('Finding Category %s.' % categoryId)
     category = db.findChildren(categoryId)  # db.findCategory(categoryId)
-    category = getCategoryChildren(db, category[2:])
+    category = getCategoryChildren(db, category[1:])
 
     saveCategoryHtml(renderCategoryHtml(category), categoryId)
     print('Html generated with name %s.html' % categoryId)
