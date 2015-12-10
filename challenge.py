@@ -38,13 +38,13 @@ def processSubCategories(db, categ, parentCategories):
     """
     if len(parentCategories) > 0:
         print('Started processing: Level %s, %s subcategories.' % (parentCategories[0][2], parentCategories[0][1]))
-        categories = categ.requestCategories(levelFilter=int(parentCategories[0][2]), categoryFilter=parentCategories[0][0])
+        categories = categ.requestCategories(categoryFilter=parentCategories[0][0])
         categories = categ.getXmlCategories(categ.stringToXML(categories))
         if len(categories) > 1:
             parsedCategories = categ.parseCategories(categories)
             db.insertCategories(parsedCategories)
-            processSubCategories(db, categ, parsedCategories[1:]) # Process children
-        return processSubCategories(db, categ, parentCategories[1:]) # Keep current node processing
+            # processSubCategories(db, categ, parsedCategories[1:]) # Process children
+        return processSubCategories(db, categ, parentCategories[1:])  # Keep current node processing
     else:
         print('-------------')
         return
@@ -72,14 +72,13 @@ def createCategories():
 
     categ = categoriesXml()
     print('Getting basic Level 1 categories.')
-    categories = categ.requestCategories()
+    categories = categ.requestCategories(levelFilter=0)
     #categories = categ.getCategoriesXML()
     categories = categ.getXmlCategories(categ.stringToXML(categories))
 
     print('Parsing categories.')
     parsedCategories = categ.parseCategories(categories)
-    # print('parsedCategories: ', parsedCategories)
-    db.insertCategories(parsedCategories)
+    # db.insertCategories(parsedCategories)
     processSubCategories(db, categ, parsedCategories)
     print('Categories creation complete.')
     db.disconnectDb()
@@ -91,13 +90,10 @@ def renderCategory(categoryId):
     print('Connecting to database.')
     db = categoriesDb()
     db.connectDb()
-    print('Finding Category %s.'% categoryId)
-    category = db.findChildren(categoryId)#db.findCategory(categoryId)
-    #print (category)
-    #print('.-------------....')
-    #print('.-------------....')
+    print('Finding Category %s.' % categoryId)
+    category = db.findChildren(categoryId)  # db.findCategory(categoryId)
     category = getCategoryChildren(db, category[2:])
-    #print(category)
+
     saveCategoryHtml(renderCategoryHtml(category), categoryId)
     print('Html generated with name %s.html' % categoryId)
     db.disconnectDb()

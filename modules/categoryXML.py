@@ -27,10 +27,12 @@ class categoriesXml():
     def setEbayData(self, data):
         pass
 
-    def requestCategories(self, levelFilter=0, categoryFilter=None):
+    def requestCategories(self, levelFilter=None, categoryFilter=None):
         """
         """
-        filters = '<LevelLimit>%s</LevelLimit>' % (levelFilter+1)
+        filters = ''
+        if levelFilter is not None:
+            filters = '<LevelLimit>%s</LevelLimit>' % (levelFilter+1)
         if categoryFilter is not None:
             filters += '<CategoryParent>%s</CategoryParent>' % categoryFilter
 
@@ -45,7 +47,15 @@ class categoriesXml():
                     </RequesterCredentials>
                 </GetCategoriesRequest>''' % filters
 
-        response = requests.post(self.ebayUrl , data=data, headers=self.headers)
+        try:
+            response = requests.post(self.ebayUrl, data=data, headers=self.headers)
+        except ConnectionError as e:
+            print('Connection error.')
+            print(e)
+        except ConnectionResetError as e:
+            print('Connection reset error.')
+            print(e)
+
         if response.status_code == 200:
             return response.text
         else:
@@ -88,7 +98,7 @@ class categoriesXml():
         # print('Root tag: ' + xmlRoot.tag)
         # CategoryArray
         categories = list(xmlRoot.iter(xmlns + 'Category'))
-        print ('Found %i categories' % len(categories))
+        print('Found %i categories' % len(categories))
         return categories
 
     def parseCategories(self, unparsedCateg):
@@ -101,12 +111,12 @@ class categoriesXml():
           <LeafCategory>true</LeafCategory>
           <LSD>true</LSD>
         """
-        categoryAttributes = ('CategoryID', 'CategoryName', 'CategoryLevel', 'BestOfferEnabled', 'CategoryParentID')
-        categories=[]
+        category_attributes = ('CategoryID', 'CategoryName', 'CategoryLevel', 'BestOfferEnabled', 'CategoryParentID')
+        categories = []
         for categoryChild in unparsedCateg:
             attributes = {}
             for category in categoryChild:
-                if self.getXmlTagname(category.tag) in categoryAttributes:
+                if self.getXmlTagname(category.tag) in category_attributes:
                     attributes[self.getXmlTagname(category.tag)] = category.text
             categories.append((attributes['CategoryID'],
                                attributes['CategoryName'],
