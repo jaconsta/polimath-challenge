@@ -64,3 +64,6 @@ target/
 
 # Node modules
 node_modules/
+
+# Pycharm file
+.idea/
