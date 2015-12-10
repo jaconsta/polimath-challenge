@@ -43,7 +43,6 @@ def processSubCategories(db, categ, parentCategories):
         if len(categories) > 1:
             parsedCategories = categ.parseCategories(categories)
             db.insertCategories(parsedCategories)
-            # processSubCategories(db, categ, parsedCategories[1:]) # Process children
         return processSubCategories(db, categ, parentCategories[1:])  # Keep current node processing
     else:
         print('-------------')
@@ -73,12 +72,10 @@ def createCategories():
     categ = categoriesXml()
     print('Getting basic Level 1 categories.')
     categories = categ.requestCategories(levelFilter=0)
-    #categories = categ.getCategoriesXML()
     categories = categ.getXmlCategories(categ.stringToXML(categories))
 
     print('Parsing categories.')
     parsedCategories = categ.parseCategories(categories)
-    # db.insertCategories(parsedCategories)
     processSubCategories(db, categ, parsedCategories)
     print('Categories creation complete.')
     db.disconnectDb()

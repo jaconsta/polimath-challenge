@@ -67,7 +67,6 @@ class categoriesXml():
         Uses the provided shell script file to get the categories from EBay.
         """
         ebayCategories = subprocess.getoutput(route)
-        # print(ebayCategories)
         return ebayCategories
 
     def stringToXML(self, unparsedXML):
@@ -95,7 +94,6 @@ class categoriesXml():
         """
         """
         xmlns = '{urn:ebay:apis:eBLBaseComponents}'
-        # print('Root tag: ' + xmlRoot.tag)
         # CategoryArray
         categories = list(xmlRoot.iter(xmlns + 'Category'))
         print('Found %i categories' % len(categories))
