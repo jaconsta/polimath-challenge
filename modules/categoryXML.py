@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-'''
-'''
+"""
+"""
 import subprocess
 import xml.etree.ElementTree as ET
 import re
 import requests
+
 
 class categoriesXml():
     def __init__(self):
@@ -22,11 +23,13 @@ class categoriesXml():
 
     def setEbayHeaders(self, headers):
         self.headers = headers
+
     def setEbayData(self, data):
         pass
+
     def requestCategories(self, levelFilter=0, categoryFilter=None):
-        '''
-        '''
+        """
+        """
         filters = '<LevelLimit>%s</LevelLimit>' % (levelFilter+1)
         if categoryFilter is not None:
             filters += '<CategoryParent>%s</CategoryParent>' % categoryFilter
@@ -50,44 +53,46 @@ class categoriesXml():
             return 'Not Found'
 
     def getCategoriesXML(self, route='sh ./get_categories.sh'):
-        '''
+        """
         Uses the provided shell script file to get the categories from EBay.
-        '''
+        """
         ebayCategories = subprocess.getoutput(route)
         # print(ebayCategories)
         return ebayCategories
+
     def stringToXML(self, unparsedXML):
-        '''
+        """
         Converts a string xml to a valid xml object
-        '''
+        """
         xmlRoot = ET.fromstring(unparsedXML)
         self.xmlRoot = xmlRoot
         return xmlRoot
 
     def getXmlXmlxs(self, xmlRoot):
-        '''
-        '''
+        """
+        """
         result = re.match(self.pattern, xmlRoot.tag)
         self.xmlxs = result
         return result.group('xmlxs')
 
     def getXmlTagname(self, xmlTag):
-        '''
-        '''
+        """
+        """
         result = re.match(self.pattern, xmlTag)
         return result.group('tagname')
 
     def getXmlCategories(self, xmlRoot):
-        '''
-        '''
+        """
+        """
         xmlns = '{urn:ebay:apis:eBLBaseComponents}'
-        #print('Root tag: ' + xmlRoot.tag)
+        # print('Root tag: ' + xmlRoot.tag)
         # CategoryArray
         categories = list(xmlRoot.iter(xmlns + 'Category'))
         print ('Found %i categories' % len(categories))
         return categories
+
     def parseCategories(self, unparsedCateg):
-        '''
+        """
           <BestOfferEnabled>true</BestOfferEnabled>
           <CategoryID>12605</CategoryID>
           <CategoryLevel>2</CategoryLevel>
@@ -95,8 +100,8 @@ class categoriesXml():
           <CategoryParentID>10542</CategoryParentID>
           <LeafCategory>true</LeafCategory>
           <LSD>true</LSD>
-        '''
-        categoryAttributes=('CategoryID', 'CategoryName', 'CategoryLevel', 'BestOfferEnabled', 'CategoryParentID')
+        """
+        categoryAttributes = ('CategoryID', 'CategoryName', 'CategoryLevel', 'BestOfferEnabled', 'CategoryParentID')
         categories=[]
         for categoryChild in unparsedCateg:
             attributes = {}
@@ -107,5 +112,5 @@ class categoriesXml():
                                 attributes['CategoryName'],
                                 attributes['CategoryLevel'],
                                 attributes['CategoryParentID'],
-                                1 if 'BestOfferEnabled' in attributes else 0, )) # Ensure correct order.
+                                1 if 'BestOfferEnabled' in attributes else 0, ))  # Ensure correct order.
         return categories

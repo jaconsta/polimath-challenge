@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-'''
+"""
 Polimath challenge code.
 
 Extracting xml and generating categories.
   Specific details can be found in CHALLENGE.txt
-'''
+"""
 import os
 import argparse
 from jinja2 import Environment, PackageLoader, FileSystemLoader
@@ -14,25 +14,28 @@ from modules.categoryXML import categoriesXml
 from modules.categoryDb import categoriesDb
 from modules.exceptions import CategoryNotFount
 
+
 def saveCategoryHtml(categoryHtml, categoryId):
-    '''
-    '''
+    """
+    """
     file = open('%s.html'%categoryId, 'w')
     file.write(categoryHtml)
     file.close()
 
+
 def renderCategoryHtml(categoryList):
-    '''
-    '''
+    """
+    """
     PATH = os.path.dirname(os.path.abspath(__file__))
     env = Environment(loader=FileSystemLoader(os.path.join(PATH, 'templates')))
     template = env.get_template('categoryTemplate.html')
     render = template.render({'category':categoryList})
     return render
 
+
 def processSubCategories(db, categ, parentCategories):
-    '''
-    '''
+    """
+    """
     if len(parentCategories) > 0:
         print('Started processing: Level %s, %s subcategories.' % (parentCategories[0][2], parentCategories[0][1]))
         categories = categ.requestCategories(levelFilter=int(parentCategories[0][2]), categoryFilter=parentCategories[0][0])
@@ -46,10 +49,11 @@ def processSubCategories(db, categ, parentCategories):
         print('-------------')
         return
 
+
 def getCategoryChildren(db, parentCategory):
-    '''
-    '''
-    categories=[]
+    """
+    """
+    categories = []
     for category in parentCategory:
         category['children'] = db.findChildren(category['categoryid'])
         if len(category['children']) > 1:
@@ -59,8 +63,8 @@ def getCategoryChildren(db, parentCategory):
 
 
 def createCategories():
-    '''
-    '''
+    """
+    """
     print('Connecting to database.')
     db = categoriesDb()
     db.connectDb()
@@ -80,9 +84,10 @@ def createCategories():
     print('Categories creation complete.')
     db.disconnectDb()
 
+
 def renderCategory(categoryId):
-    '''
-    '''
+    """
+    """
     print('Connecting to database.')
     db = categoriesDb()
     db.connectDb()
@@ -97,10 +102,11 @@ def renderCategory(categoryId):
     print('Html generated with name %s.html' % categoryId)
     db.disconnectDb()
 
+
 def main():
-    '''
+    """
     Main function
-    '''
+    """
     print('Starting challenge.')
     parser = argparse.ArgumentParser()
     # Help values
